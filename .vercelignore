@@ -1,0 +1,4 @@
+# Never upload local secrets or generated data to a build provider.
+.env
+data/
+test/

@@ -44,7 +44,8 @@ logged in the dashboard so nothing fails silently.
 
 ## Quick start
 
-Requires **Node.js 22.5 or newer** (it uses the built-in `node:sqlite` module).
+Requires **Node.js 22.13 or newer** (it uses the built-in `node:sqlite` module, which was
+behind a flag until then).
 
 ```bash
 npm install
@@ -126,13 +127,83 @@ Configuration precedence is **saved setting -> environment -> built-in default**
 npm test
 ```
 
-52 tests run against the real Express app, a real SQLite database, the real PDF generator,
+65 tests run against the real Express app, a real SQLite database, the real PDF generator,
 a real SMTP conversation and a real HTTP webhook receiver. Nothing is mocked.
 
 Coverage includes validation rules, field normalization, PDF structure and embedded
 signatures, authentication and session tampering, authorization on every admin endpoint,
-CSV escaping, notification delivery and failure handling, and the PNG integrity checks
-described below.
+CSV escaping, notification delivery and failure handling, dashboard-managed settings, and
+the PNG integrity checks described below.
+
+## Deployment
+
+The app keeps its data in **SQLite plus files on disk**, so it needs a host with a writable
+filesystem that outlives a single request. That single fact decides where it can run.
+
+| Host | Works? | Why |
+| --- | --- | --- |
+| Render / Railway / Fly.io / VPS, with a volume | Yes | Persistent disk for the database and PDFs |
+| Vercel, Netlify, AWS Lambda | UI only | Read-only filesystem apart from `/tmp`, which is per-invocation and not shared |
+
+### Vercel
+
+Vercel is **optional as a front end, but not a replacement for a backend.** A serverless
+function cannot hold the database: `/tmp` is wiped between invocations and is not shared
+between concurrent instances, so a submission stored by one request is invisible to the
+next. Admin login would also break, since the session check reads the admin table.
+
+What `api/index.js` and `vercel.json` in this repo give you is a deployable **preview**: the
+form, the dashboard UI and PDF generation all run, but submissions are not durable. Good
+for showing the app to someone, not for taking real agreements.
+
+```bash
+vercel            # preview deployment
+vercel --prod     # production deployment
+```
+
+Set these under **Settings -> Environment Variables**:
+
+| Variable | Notes |
+| --- | --- |
+| `SESSION_SECRET` | Long random string. Required, or admins are signed out on every cold start. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` | Seed administrator. |
+| `SMTP_*`, `ADMIN_NOTIFY_EMAIL`, `NOTIFY_WEBHOOK_URL` | Optional; can also be set on the Settings page. |
+
+If a preview URL asks you to authenticate, the project has Deployment Protection on. Either
+turn it off for previews, or create a Protection Bypass secret and append
+`?x-vercel-protection-bypass=<secret>`.
+
+Do not put real tenant data on a serverless preview.
+
+### Render
+
+`render.yaml` is a working blueprint: it provisions the service, a 1 GB disk mounted at
+`/var/data`, `DATA_DIR=/var/data`, and a generated `SESSION_SECRET`.
+
+```bash
+# Or configure by hand: new Web Service -> this repo
+Build command:  npm ci
+Start command:  npm start
+Health check:   /healthz
+```
+
+Add a **Disk** mounted at `/var/data` and set `DATA_DIR=/var/data`. Without the disk the
+database is erased on every deploy. Render's free instance type has no disk, so a paid plan
+is required for persistence.
+
+Either way, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` so the first administrator is seeded, and
+change the password after the first sign-in.
+
+### Docker / any Node host
+
+```bash
+docker build -t rental-agreement .   # or just: npm ci && npm start
+docker run -p 12000:12000 -v rental-data:/app/data \
+  -e SESSION_SECRET=... -e ADMIN_PASSWORD=... rental-agreement
+```
+
+Mount a volume at the data directory. Requires **Node 22.13 or newer** - `node:sqlite` was
+experimental and behind a flag before that, so the app cannot start on 22.5 to 22.12.
 
 ## How it works
 
