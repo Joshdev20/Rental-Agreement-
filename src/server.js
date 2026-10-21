@@ -7,6 +7,7 @@ const auth = require('./lib/auth');
 const publicRoutes = require('./routes/public');
 const { router: adminAuthRoutes, requireAdmin } = require('./routes/admin-auth');
 const adminRoutes = require('./routes/admin');
+const adminSettingsRoutes = require('./routes/admin-settings');
 
 const app = express();
 
@@ -30,6 +31,7 @@ const publicDir = path.join(config.rootDir, 'public');
 app.use('/api', publicRoutes);
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', adminRoutes);
+app.use('/admin', adminSettingsRoutes);
 
 app.get('/admin/login', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'login.html'));
@@ -37,6 +39,10 @@ app.get('/admin/login', (req, res) => {
 
 app.get('/admin', requireAdmin, (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'index.html'));
+});
+
+app.get('/admin/settings', requireAdmin, (req, res) => {
+  res.sendFile(path.join(publicDir, 'admin', 'settings.html'));
 });
 
 app.get('/admin/submissions/:id', requireAdmin, (req, res) => {
@@ -69,11 +75,19 @@ app.use((error, req, res, next) => {
   res.status(status).send(message);
 });
 
-function start() {
+/**
+ * Create the first administrator if none exists. Idempotent and cheap, so it
+ * is safe to call on every boot, including each serverless cold start.
+ */
+function bootstrap() {
   const seeded = auth.ensureSeedAdmin(config.admin);
   if (seeded) {
     console.log(`[auth] Sign in with ${seeded.email} (password from ADMIN_PASSWORD).`);
   }
+}
+
+function start() {
+  bootstrap();
 
   const server = app.listen(config.port, () => {
     console.log(`Rental agreement app listening on http://localhost:${config.port}`);
@@ -88,4 +102,4 @@ if (require.main === module) {
   start();
 }
 
-module.exports = { app, start };
+module.exports = { app, start, bootstrap };

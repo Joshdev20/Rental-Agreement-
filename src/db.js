@@ -52,6 +52,12 @@ db.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_notifications_submission ON notifications (submission_id);
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
 `);
 
 module.exports = db;

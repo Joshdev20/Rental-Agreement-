@@ -1,27 +1,38 @@
 'use strict';
 
 const nodemailer = require('nodemailer');
-const config = require('../config');
 const schema = require('./agreement-schema');
 const submissions = require('./submissions');
+const settings = require('./settings');
 
 let transporter = null;
+let transporterKey = null;
 
+/**
+ * Settings are read on every send so a change made in the dashboard takes
+ * effect immediately. The transport is cached per configuration: reusing a
+ * cached connection after the host or credentials change would silently send
+ * mail through the old server.
+ */
 function mailerEnabled() {
-  return Boolean(config.notify.smtp.host);
+  return Boolean(settings.notifyConfig().smtp.host);
 }
 
 function getTransporter() {
-  if (!mailerEnabled()) return null;
-  if (!transporter) {
+  const current = settings.notifyConfig();
+  if (!current.smtp.host) return null;
+
+  const key = JSON.stringify(current.smtp);
+  if (!transporter || transporterKey !== key) {
     transporter = nodemailer.createTransport({
-      host: config.notify.smtp.host,
-      port: config.notify.smtp.port,
-      secure: config.notify.smtp.secure,
-      auth: config.notify.smtp.user
-        ? { user: config.notify.smtp.user, pass: config.notify.smtp.pass }
+      host: current.smtp.host,
+      port: current.smtp.port,
+      secure: current.smtp.secure,
+      auth: current.smtp.user
+        ? { user: current.smtp.user, pass: current.smtp.pass }
         : undefined,
     });
+    transporterKey = key;
   }
   return transporter;
 }
@@ -88,20 +99,21 @@ function escapeHtml(value) {
 }
 
 async function sendEmail(submission) {
-  const to = config.notify.email;
-  if (!mailerEnabled()) {
+  const current = settings.notifyConfig();
+  const to = current.email;
+  if (!current.smtp.host) {
     submissions.recordNotification(submission.id, {
       channel: 'email',
       target: to,
       status: 'skipped',
-      detail: 'SMTP_HOST is not configured; e-mail notification not sent.',
+      detail: 'No SMTP host is configured; e-mail notification not sent.',
     });
     return { channel: 'email', status: 'skipped' };
   }
 
   try {
     await getTransporter().sendMail({
-      from: config.notify.from,
+      from: current.from,
       to,
       subject: `New rental agreement ${submission.reference} - ${submission.tenant_name}`,
       text: buildSummaryText(submission),
@@ -127,13 +139,13 @@ async function sendEmail(submission) {
 }
 
 async function sendWebhook(submission) {
-  const url = config.notify.webhookUrl;
+  const url = settings.notifyConfig().webhookUrl;
   if (!url) {
     submissions.recordNotification(submission.id, {
       channel: 'webhook',
       target: null,
       status: 'skipped',
-      detail: 'NOTIFY_WEBHOOK_URL is not configured.',
+      detail: 'No webhook URL is configured.',
     });
     return { channel: 'webhook', status: 'skipped' };
   }
@@ -180,6 +192,66 @@ async function sendWebhook(submission) {
 }
 
 /**
+ * Verify the mail settings by opening a real connection and sending a test
+ * message. Returns a result object rather than throwing so the dashboard can
+ * show the server's own error text.
+ */
+async function testEmail(recipient) {
+  const current = settings.notifyConfig();
+  if (!current.smtp.host) {
+    return { ok: false, message: 'Set an SMTP host before testing.' };
+  }
+  const to = String(recipient || '').trim() || current.email;
+  if (!settings.isValidEmail(to)) {
+    return { ok: false, message: 'Enter a valid recipient email address.' };
+  }
+
+  try {
+    const info = await getTransporter().sendMail({
+      from: current.from,
+      to,
+      subject: 'Rental Agreement Desk test email',
+      text: [
+        'This is a test message from your Rental Agreement Desk dashboard.',
+        '',
+        `SMTP host: ${current.smtp.host}:${current.smtp.port}`,
+        `Implicit TLS: ${current.smtp.secure ? 'yes' : 'no'}`,
+        '',
+        'If you received this, submission alerts are configured correctly.',
+      ].join('\n'),
+    });
+    return { ok: true, message: `Test email accepted for ${to}.`, detail: info.response || null };
+  } catch (error) {
+    return { ok: false, message: `SMTP rejected the message: ${error.message}` };
+  }
+}
+
+/** Verify the webhook by POSTing a sample payload. */
+async function testWebhook() {
+  const url = settings.notifyConfig().webhookUrl;
+  if (!url) return { ok: false, message: 'Set a webhook URL before testing.' };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'rental_agreement.test',
+        message: 'Test delivery from the Rental Agreement Desk dashboard.',
+        sentAt: new Date().toISOString(),
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) {
+      return { ok: false, message: `The endpoint replied with HTTP ${response.status}.` };
+    }
+    return { ok: true, message: `The endpoint replied with HTTP ${response.status}.` };
+  } catch (error) {
+    return { ok: false, message: `Could not reach the endpoint: ${error.message}` };
+  }
+}
+
+/**
  * Notify administrators about a new submission. Never throws: a notification
  * problem must not cost the tenant their submission.
  */
@@ -190,4 +262,4 @@ async function notifyAdmins(submission) {
   );
 }
 
-module.exports = { notifyAdmins, mailerEnabled, buildSummaryText };
+module.exports = { notifyAdmins, mailerEnabled, buildSummaryText, testEmail, testWebhook };
