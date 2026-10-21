@@ -804,10 +804,11 @@ textarea[aria-invalid="true"]:focus {
 
 /* ------------------------------------------------------------ action bar */
 
+/* The submit bar is static by default so it never covers the fields being
+   filled. It is promoted to sticky (is-pinned, set by form.js) only once the
+   end of the form is in view, where its flow position already sits at the
+   bottom of the viewport - so pinning adds no overlay of its own. */
 .actions {
-  position: sticky;
-  bottom: 0;
-  z-index: 30;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -819,6 +820,12 @@ textarea[aria-invalid="true"]:focus {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
+}
+
+.actions.is-pinned {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
 }
 
 .actions__note {

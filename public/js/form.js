@@ -488,6 +488,42 @@ function updateProgress() {
   }
 }
 
+/**
+ * Pin the submit bar to the bottom of the viewport only once the end of the
+ * form has been reached. While the tenant is working through the sections the
+ * bar stays in normal flow, off-screen, so it cannot cover the fields being
+ * filled.
+ *
+ * The bar is the last element on the page, so "reached the end" is simply
+ * "scrolled to the bottom of the document". At that point the bar's natural
+ * position already fills the bottom of the viewport, so pinning shifts nothing
+ * and cannot obscure a field. A sentinel-based trigger would pin early on
+ * narrow screens, where the bar wraps to several rows and is taller than the
+ * gap above it.
+ */
+function initActionBar() {
+  const actions = document.querySelector('.actions');
+  if (!actions) return;
+
+  let frame = 0;
+
+  function update() {
+    frame = 0;
+    const page = document.documentElement;
+    const atEnd = window.scrollY + window.innerHeight >= page.scrollHeight - 2;
+    actions.classList.toggle('is-pinned', atEnd);
+  }
+
+  function schedule() {
+    if (frame) return;
+    frame = window.requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  update();
+}
+
 /** Mirror the active section in the table of contents while scrolling. */
 function initScrollSpy() {
   const links = Array.from(document.querySelectorAll('.toc a'));
@@ -596,6 +632,7 @@ async function boot() {
 
   renderSections();
   initScrollSpy();
+  initActionBar();
 
   $('#agreement-form').addEventListener('submit', submit);
   $('#agreement-form').addEventListener('input', updateProgress);
