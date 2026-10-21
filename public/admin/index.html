@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Submissions - Rental Agreement Desk</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="appbar no-print">
+    <a class="appbar__brand" href="/admin">
+      <span class="appbar__mark">RA</span>
+      <span>Rental Agreement Desk</span>
+    </a>
+    <span class="appbar__spacer"></span>
+    <a class="appbar__link" href="/" target="_blank" rel="noopener">Tenant form</a>
+    <button class="appbar__link" type="button" id="btn-password" style="background:none;border:0;cursor:pointer;font:inherit;font-size:14px">Change password</button>
+    <span class="appbar__user" id="who"></span>
+    <button class="appbar__link" type="button" id="btn-logout" style="background:none;border:0;cursor:pointer;font:inherit;font-size:14px">Sign out</button>
+  </header>
+
+  <main class="wrap">
+    <div class="page-head">
+      <div>
+        <h1>Rental agreement submissions</h1>
+        <p>Every completed agreement, with its generated PDF ready to print or download.</p>
+      </div>
+      <div class="page-head__actions">
+        <button class="btn btn--ghost" type="button" id="btn-refresh">Refresh</button>
+        <a class="btn btn--primary" href="/admin/api/export.csv">Export CSV</a>
+      </div>
+    </div>
+
+    <div id="alerts"></div>
+
+    <section class="stats" id="stats">
+      <div class="stat">
+        <div class="stat__label">Total submissions</div>
+        <div class="stat__value" id="stat-total">-</div>
+        <div class="stat__sub">All time</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">Awaiting review</div>
+        <div class="stat__value" id="stat-pending">-</div>
+        <div class="stat__sub">Not yet reviewed</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">This month</div>
+        <div class="stat__value" id="stat-month">-</div>
+        <div class="stat__sub" id="stat-month-label">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">Monthly rent value</div>
+        <div class="stat__value" id="stat-rent">-</div>
+        <div class="stat__sub">Sum of active submissions</div>
+      </div>
+    </section>
+
+    <div class="table-wrap">
+      <div class="toolbar">
+        <div class="toolbar__search">
+          <label class="sr-only" for="search">Search submissions</label>
+          <input type="search" id="search" placeholder="Search by tenant, email, property or reference...">
+        </div>
+        <label class="sr-only" for="status-filter">Filter by status</label>
+        <select id="status-filter" style="width:auto;min-width:170px">
+          <option value="">All statuses</option>
+          <option value="submitted">Submitted</option>
+          <option value="reviewed">Reviewed</option>
+          <option value="approved">Approved</option>
+          <option value="declined">Declined</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Tenant</th>
+              <th>Property</th>
+              <th>Lease term</th>
+              <th class="num">Monthly rent</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th style="text-align:right">Documents</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <div id="empty" class="empty hidden">
+        <div class="empty__icon">&#128196;</div>
+        <h3>No submissions yet</h3>
+        <p>When a tenant completes the agreement form it will appear here automatically.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- password change dialog -->
+  <div class="modal" id="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+    <div class="modal__panel">
+      <div class="modal__head">
+        <h3 id="pw-title">Change password</h3>
+      </div>
+      <div class="modal__body">
+        <div id="pw-alerts"></div>
+        <div class="stack">
+          <div class="field">
+            <label for="pw-current">Current password</label>
+            <input type="password" id="pw-current" autocomplete="current-password">
+          </div>
+          <div class="field">
+            <label for="pw-new">New password</label>
+            <input type="password" id="pw-new" autocomplete="new-password">
+            <span class="field__hint">At least 10 characters.</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close>Cancel</button>
+        <button class="btn btn--primary" type="button" id="pw-save">Update password</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

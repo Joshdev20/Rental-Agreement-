@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Submission - Rental Agreement Desk</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="appbar no-print">
+    <a class="appbar__brand" href="/admin">
+      <span class="appbar__mark">RA</span>
+      <span>Rental Agreement Desk</span>
+    </a>
+    <span class="appbar__spacer"></span>
+    <a class="appbar__link" href="/admin">All submissions</a>
+    <button class="appbar__link" type="button" id="btn-logout" style="background:none;border:0;cursor:pointer;font:inherit;font-size:14px">Sign out</button>
+  </header>
+
+  <main class="wrap">
+    <div class="crumbs no-print"><a href="/admin">Submissions</a> / <span id="crumb-ref">...</span></div>
+
+    <div id="alerts"></div>
+    <div id="loading" class="card"><div class="empty"><div class="spinner" style="border-color:var(--navy-100);border-top-color:var(--navy-700);margin:0 auto"></div><p class="mt-2">Loading submission...</p></div></div>
+
+    <div id="content" class="hidden">
+      <div class="page-head">
+        <div>
+          <h1 id="title">Rental agreement</h1>
+          <p id="subtitle">-</p>
+        </div>
+        <div class="page-head__actions no-print">
+          <select id="status-select" style="width:auto;min-width:150px" aria-label="Submission status"></select>
+          <button class="btn btn--ghost" type="button" id="btn-regenerate">Regenerate PDF</button>
+          <button class="btn btn--ghost" type="button" id="btn-print">Print</button>
+          <a class="btn btn--primary" id="btn-download" href="#" download>Download PDF</a>
+        </div>
+      </div>
+
+      <div id="notice"></div>
+
+      <section class="card no-print">
+        <div class="card__head">
+          <h2>Executed agreement</h2>
+          <p>The generated PDF is the printable, signable document for this submission.</p>
+        </div>
+        <div class="card__body" style="padding-bottom:22px">
+          <iframe id="pdf-frame" title="Generated rental agreement PDF"
+                  style="width:100%;height:820px;border:1px solid var(--border);border-radius:8px;background:#fff"></iframe>
+        </div>
+      </section>
+
+      <section class="card" id="notifications-card">
+        <div class="card__head">
+          <h2>Notification log</h2>
+          <p>Delivery attempts made when this agreement was submitted.</p>
+        </div>
+        <div class="card__body" style="padding-bottom:22px">
+          <div id="notifications"></div>
+        </div>
+      </section>
+
+      <div id="details"></div>
+    </div>
+  </main>
+
+  <script src="/js/submission.js"></script>
+</body>
+</html>

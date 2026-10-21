@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Check submission - Rental Agreement Desk</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="appbar">
+    <a class="appbar__brand" href="/">
+      <span class="appbar__mark">RA</span>
+      <span>Rental Agreement Desk</span>
+    </a>
+    <span class="appbar__spacer"></span>
+    <a class="appbar__link" href="/">New agreement</a>
+    <a class="appbar__link" href="/admin">Admin sign in</a>
+  </header>
+
+  <main class="wrap wrap--narrow">
+    <div class="page-head">
+      <div>
+        <h1>Check your submission</h1>
+        <p>Enter the reference you received and the email address you used on the form.</p>
+      </div>
+    </div>
+
+    <div id="alerts"></div>
+
+    <section class="card">
+      <div class="card__body" style="padding-bottom:22px">
+        <form id="status-form" class="stack" novalidate>
+          <div class="field">
+            <label for="reference">Agreement reference</label>
+            <input type="text" id="reference" placeholder="RA-2026-XXXXXX" autocapitalize="characters" required>
+          </div>
+          <div class="field">
+            <label for="email">Email address used on the form</label>
+            <input type="email" id="email" autocomplete="email" required>
+          </div>
+          <button class="btn btn--primary" type="submit" id="btn-check">Check status</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="card hidden" id="result">
+      <div class="card__head">
+        <h2 id="result-ref">-</h2>
+        <p>Submission details on file.</p>
+      </div>
+      <div class="card__body" style="padding-bottom:22px">
+        <dl class="dl">
+          <dt>Status</dt>
+          <dd><span class="badge" id="result-status">-</span></dd>
+          <dt>Tenant</dt>
+          <dd id="result-tenant">-</dd>
+          <dt>Property</dt>
+          <dd id="result-property">-</dd>
+          <dt>Submitted</dt>
+          <dd id="result-date">-</dd>
+        </dl>
+      </div>
+    </section>
+  </main>
+  <script src="/js/status.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Residential Rental Agreement - Complete and Submit</title>
+  <meta name="description" content="Complete a US residential rental agreement online. Print it, or submit it to the property manager for review and PDF generation.">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="appbar no-print">
+    <a class="appbar__brand" href="/">
+      <span class="appbar__mark">RA</span>
+      <span>Rental Agreement Desk</span>
+    </a>
+    <span class="appbar__spacer"></span>
+    <a class="appbar__link" href="/status.html">Check submission</a>
+    <a class="appbar__link" href="/admin">Admin sign in</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero__inner">
+      <span class="hero__eyebrow">Residential Lease - United States</span>
+      <h1>Residential Rental Agreement</h1>
+      <p>
+        Complete every applicable field below, sign electronically, and submit. The property
+        manager receives your submission instantly and can issue the executed agreement as a
+        printable PDF. You may also print a blank copy to review or sign by hand.
+      </p>
+      <div class="hero__meta">
+        <span><strong id="meta-ref">Reference generated on submit</strong></span>
+        <span><strong>10</strong> sections</span>
+        <span><strong>Required fields</strong> marked with <span style="color:#f0c987">*</span></span>
+      </div>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <!-- ------------------------------ success view ------------------------------ -->
+    <section id="success-view" class="card hidden" aria-live="polite">
+      <div class="success">
+        <div class="success__icon">&#10003;</div>
+        <h1>Agreement submitted</h1>
+        <p>
+          Your rental agreement has been delivered to the property manager. Keep the reference
+          below - you will need it to check the status of your submission.
+        </p>
+        <div class="ref-box" id="success-ref">-</div>
+        <p class="small muted">
+          The manager reviews your details and can print or download the executed PDF agreement.
+          If anything needs correcting, they will contact you using the email you provided.
+        </p>
+        <div class="success__actions">
+          <button class="btn btn--primary" type="button" onclick="window.print()">Print this page</button>
+          <a class="btn btn--ghost" href="/status.html">Check submission status</a>
+          <button class="btn btn--ghost" type="button" id="start-over">Start a new agreement</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- -------------------------------- form view -------------------------------- -->
+    <div id="form-view">
+      <div id="alerts" class="no-print"></div>
+
+      <div class="layout">
+        <nav class="toc no-print" aria-label="Form sections">
+          <h2>Agreement sections</h2>
+          <ol id="toc-list"></ol>
+          <div class="progress" aria-hidden="true"><div class="progress__bar" id="progress-bar"></div></div>
+          <p class="small muted" style="margin:10px 0 0" id="progress-text">0% complete</p>
+        </nav>
+
+        <form id="agreement-form" novalidate autocomplete="on">
+          <div id="sections"></div>
+
+          <div class="actions no-print">
+            <div class="actions__note">
+              <strong>Before you submit:</strong> review each section. Required fields are marked
+              with <span class="req">*</span>. Your typed name and drawn signature are legally
+              binding under the Electronic Signatures Act (ESIGN).
+            </div>
+            <button class="btn btn--ghost" type="button" id="btn-print">Print</button>
+            <button class="btn btn--primary" type="submit" id="btn-submit">Submit agreement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/form.js"></script>
+</body>
+</html>
