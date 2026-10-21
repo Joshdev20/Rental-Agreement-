@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings - Rental Agreement Desk</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="appbar no-print">
+    <a class="appbar__brand" href="/admin">
+      <span class="appbar__mark">RA</span>
+      <span>Rental Agreement Desk</span>
+    </a>
+    <span class="appbar__spacer"></span>
+    <a class="appbar__link" href="/admin">Submissions</a>
+    <a class="appbar__link" href="/admin/settings" aria-current="page">Settings</a>
+    <button class="appbar__link" type="button" id="btn-password" style="background:none;border:0;cursor:pointer;font:inherit;font-size:14px">Change password</button>
+    <span class="appbar__user" id="who"></span>
+    <button class="appbar__link" type="button" id="btn-logout" style="background:none;border:0;cursor:pointer;font:inherit;font-size:14px">Sign out</button>
+  </header>
+
+  <main class="wrap">
+    <div class="crumbs no-print"><a href="/admin">Submissions</a> / <span>Settings</span></div>
+
+    <div class="page-head">
+      <div>
+        <h1>Connections and configuration</h1>
+        <p>Set up where submission alerts are delivered. Changes apply immediately, with no restart.</p>
+      </div>
+      <div class="page-head__actions no-print">
+        <button class="btn btn--ghost" type="button" id="btn-reset">Reset to server defaults</button>
+        <button class="btn btn--primary" type="button" id="btn-save">Save settings</button>
+      </div>
+    </div>
+
+    <div id="alerts"></div>
+
+    <section class="stats" id="status-cards">
+      <div class="stat">
+        <div class="stat__label">Email alerts</div>
+        <div class="stat__value" id="stat-email">-</div>
+        <div class="stat__sub" id="stat-email-sub">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">Webhook alerts</div>
+        <div class="stat__value" id="stat-webhook">-</div>
+        <div class="stat__sub" id="stat-webhook-sub">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">Notification recipient</div>
+        <div class="stat__value stat__value--text" id="stat-recipient">-</div>
+        <div class="stat__sub">Where submission alerts are sent</div>
+      </div>
+    </section>
+
+    <div id="loading" class="card">
+      <div class="empty">
+        <div class="spinner" style="border-color:var(--navy-100);border-top-color:var(--navy-700);margin:0 auto"></div>
+        <p class="mt-2">Loading settings...</p>
+      </div>
+    </div>
+
+    <form id="settings-form" class="hidden" novalidate>
+      <section class="card" id="card-email">
+        <div class="card__head">
+          <h2>Email delivery (SMTP)</h2>
+          <p>Send an alert to the property manager whenever a tenant submits an agreement.</p>
+        </div>
+        <div class="card__body">
+          <div class="grid" id="group-email"></div>
+        </div>
+      </section>
+
+      <section class="card" id="card-webhook">
+        <div class="card__head">
+          <h2>Webhook delivery</h2>
+          <p>POST a JSON payload for each submission to a URL you control, such as Slack, Zapier or your own service.</p>
+        </div>
+        <div class="card__body">
+          <div class="grid" id="group-webhook"></div>
+        </div>
+      </section>
+
+      <div class="actions no-print">
+        <span class="actions__note" id="save-note">Changes take effect immediately. Passwords are never displayed once saved.</span>
+        <button class="btn btn--ghost" type="button" id="btn-test-email">Send test email</button>
+        <button class="btn btn--ghost" type="button" id="btn-test-webhook">Test webhook</button>
+        <button class="btn btn--primary" type="submit" id="btn-save-bottom">Save settings</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- password change dialog -->
+  <div class="modal" id="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+    <div class="modal__panel">
+      <div class="modal__head">
+        <h3 id="pw-title">Change password</h3>
+      </div>
+      <div class="modal__body">
+        <div id="pw-alerts"></div>
+        <div class="stack">
+          <div class="field">
+            <label for="pw-current">Current password</label>
+            <input type="password" id="pw-current" autocomplete="current-password">
+          </div>
+          <div class="field">
+            <label for="pw-new">New password</label>
+            <input type="password" id="pw-new" autocomplete="new-password">
+            <span class="field__hint">At least 10 characters.</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close>Cancel</button>
+        <button class="btn btn--primary" type="button" id="pw-save">Update password</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/settings.js"></script>
+</body>
+</html>

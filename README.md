@@ -28,14 +28,16 @@ admin access - happens on the server.
 - Status workflow: submitted, reviewed, approved, declined, archived.
 - CSV export of every submission for spreadsheets or record keeping.
 - A notification log showing exactly what was sent, to where, and whether it succeeded.
+- A **Settings** page for every external connection: SMTP, alert recipient, from address
+  and webhook, each with a live test button and a reset to server defaults.
 - Password change, session expiry after 8 hours, and login rate limiting.
 
 **Notification on submission** happens over two optional channels, both off by default:
 
 | Channel | Configure | Behaviour when unset |
 | --- | --- | --- |
-| Email | `SMTP_HOST` and friends | Attempt recorded as `skipped` |
-| Webhook | `NOTIFY_WEBHOOK_URL` | Attempt recorded as `skipped` |
+| Email | Settings page, or `SMTP_HOST` and friends | Attempt recorded as `skipped` |
+| Webhook | Settings page, or `NOTIFY_WEBHOOK_URL` | Attempt recorded as `skipped` |
 
 Notification problems never block or fail a tenant's submission, and every attempt is
 logged in the dashboard so nothing fails silently.
@@ -71,6 +73,8 @@ npm run create-admin -- --email second@example.com
 ## Configuration
 
 Every setting lives in `.env`. See `.env.example` for the full annotated list.
+The `.env` values act as defaults: anything saved on the **Settings** page in the
+dashboard overrides them, without a restart.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
@@ -81,6 +85,24 @@ Every setting lives in `.env`. See `.env.example` for the full annotated list.
 | `ADMIN_NOTIFY_EMAIL` | seed admin email | Recipient of submission alerts |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | empty | E-mail alerts |
 | `NOTIFY_WEBHOOK_URL` | empty | JSON webhook, e.g. Slack, Zapier, Make, n8n |
+
+### Settings page
+
+Sign in and open **Settings** (<http://localhost:12000/admin/settings>) to manage every
+external connection from the dashboard:
+
+- SMTP host, port, TLS mode, username and password, the from address, and the alert recipient.
+- The webhook URL for JSON submission alerts.
+- **Send test email** and **Test webhook** buttons, which make a real connection and report
+  the server's own response.
+- **Reset to server defaults**, which drops the saved overrides and falls back to `.env`.
+- Each field shows where its current value comes from: `Saved here`, `From server environment`, or `Default`.
+
+Values are stored in the SQLite database, so they survive a restart. The SMTP password is
+write-only: it is never sent back to the browser, a blank password field keeps the stored
+one, and removing it takes an explicit checkbox.
+
+Configuration precedence is **saved setting -> environment -> built-in default**.
 
 ### Webhook payload
 

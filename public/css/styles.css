@@ -86,11 +86,12 @@ a {
   position: sticky;
   top: 0;
   z-index: 40;
-  height: var(--header-h);
+  min-height: var(--header-h);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  padding: 0 20px;
+  gap: 8px 12px;
+  padding: 10px 20px;
   background: var(--navy-900);
   color: #fff;
   box-shadow: var(--shadow-sm);
@@ -106,6 +107,12 @@ a {
   letter-spacing: 0.01em;
   color: #fff;
   text-decoration: none;
+  min-width: 0;
+}
+
+.appbar__brand > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -124,7 +131,8 @@ a {
 }
 
 .appbar__spacer {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .appbar__link {
@@ -135,6 +143,34 @@ a {
   border-radius: var(--radius-sm);
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Below the brand-break width the links wrap to their own row and sit flush
+   left, so the header reads as a two-row bar rather than a stranded cluster. */
+@media (max-width: 760px) {
+  .appbar__spacer {
+    display: none;
+  }
+  /* The header is taller once it wraps, so anchored sections need more room. */
+  .card {
+    scroll-margin-top: 120px;
+  }
+}
+
+/* Tighten the bar so both links still share one row on small phones. */
+@media (max-width: 480px) {
+  .appbar {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .appbar__link {
+    padding: 7px 9px;
+    font-size: 13.5px;
+  }
+  .card {
+    scroll-margin-top: 150px;
+  }
 }
 
 .appbar__link:hover {
@@ -411,6 +447,41 @@ a {
   color: var(--muted);
 }
 
+/* Settings: shows where an effective value came from, plus its error text. */
+.field__source {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.field__error {
+  font-size: 12.5px;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.check--clear {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.actions__note--dirty {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.stat__value--text {
+  font-size: 15px;
+  word-break: break-word;
+}
+
+.stat__value--ok { color: var(--success); }
+.stat__value--off { color: var(--muted); }
+
 .req {
   color: var(--danger);
   margin-left: 2px;
@@ -423,6 +494,7 @@ input[type="date"],
 input[type="number"],
 input[type="password"],
 input[type="search"],
+input[type="url"],
 select,
 textarea {
   width: 100%;
@@ -556,6 +628,7 @@ textarea[aria-invalid="true"]:focus {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 26px;
   font-size: 14px;
   color: var(--ink-soft);
   cursor: pointer;
@@ -638,9 +711,10 @@ textarea[aria-invalid="true"]:focus {
 
 .sig__bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding: 8px 12px;
   border-top: 1px solid var(--border);
   background: var(--navy-50);
@@ -945,6 +1019,9 @@ tbody tr:hover {
   color: var(--navy-700);
   font-weight: 600;
   white-space: nowrap;
+  display: inline-block;
+  padding: 5px 0;
+  margin: -5px 0;
 }
 
 .cell-strong {
@@ -1003,6 +1080,8 @@ tbody tr:hover {
   border-bottom: 1px solid #eef1f5;
   margin: 0;
   font-size: 14px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .dl > dt {
@@ -1173,6 +1252,9 @@ tbody tr:hover {
 .crumbs a {
   color: var(--navy-600);
   text-decoration: none;
+  display: inline-block;
+  padding: 5px 2px;
+  margin: -5px 0;
 }
 
 .crumbs a:hover {

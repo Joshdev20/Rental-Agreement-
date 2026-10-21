@@ -7,6 +7,7 @@ const auth = require('./lib/auth');
 const publicRoutes = require('./routes/public');
 const { router: adminAuthRoutes, requireAdmin } = require('./routes/admin-auth');
 const adminRoutes = require('./routes/admin');
+const adminSettingsRoutes = require('./routes/admin-settings');
 
 const app = express();
 
@@ -30,6 +31,7 @@ const publicDir = path.join(config.rootDir, 'public');
 app.use('/api', publicRoutes);
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', adminRoutes);
+app.use('/admin', adminSettingsRoutes);
 
 app.get('/admin/login', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'login.html'));
@@ -37,6 +39,10 @@ app.get('/admin/login', (req, res) => {
 
 app.get('/admin', requireAdmin, (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'index.html'));
+});
+
+app.get('/admin/settings', requireAdmin, (req, res) => {
+  res.sendFile(path.join(publicDir, 'admin', 'settings.html'));
 });
 
 app.get('/admin/submissions/:id', requireAdmin, (req, res) => {
